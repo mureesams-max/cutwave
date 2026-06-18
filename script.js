@@ -152,8 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalBg = document.getElementById('video-modal-close-bg');
   const iframe = document.getElementById('video-iframe');
   
-  // Use a placeholder cinematic showcase video (e.g. from Vimeo or YouTube)
-  const videoSrc = "https://www.youtube.com/embed/LXb3EKWsInQ?autoplay=1&mute=0";
+  // Use an impressive motion graphics showreel from YouTube
+  const videoSrc = "https://www.youtube.com/embed/eM_g3uJ8540?autoplay=1&mute=0";
 
   function openModal() {
     modal.setAttribute('aria-hidden', 'false');
