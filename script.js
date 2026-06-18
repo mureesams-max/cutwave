@@ -1,212 +1,239 @@
 /* ========================================
-   CUTWAVE — JavaScript (Interactions)
+   CUTWAVE v2 — Interactions & Animations
    ======================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // ---------- Navbar Scroll Effect ----------
+
+  // ---- Navbar scroll ----
   const navbar = document.querySelector('.navbar');
-  const handleScroll = () => {
-    if (window.scrollY > 50) {
-      navbar.classList.add('scrolled');
-    } else {
-      navbar.classList.remove('scrolled');
-    }
-  };
-  window.addEventListener('scroll', handleScroll, { passive: true });
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 60);
+  }, { passive: true });
 
-  // ---------- Mobile Nav Toggle ----------
-  const navToggle = document.querySelector('.nav-toggle');
-  const navLinks = document.querySelector('.nav-links');
-
-  if (navToggle) {
-    navToggle.addEventListener('click', () => {
-      navToggle.classList.toggle('active');
-      navLinks.classList.toggle('active');
-      document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+  // ---- Mobile nav ----
+  const toggle = document.getElementById('nav-toggle');
+  const links = document.getElementById('nav-links');
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      toggle.classList.toggle('active');
+      links.classList.toggle('active');
+      document.body.style.overflow = links.classList.contains('active') ? 'hidden' : '';
     });
-
-    // Close mobile nav when a link is clicked
-    navLinks.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        navToggle.classList.remove('active');
-        navLinks.classList.remove('active');
-        document.body.style.overflow = '';
-      });
-    });
+    links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      toggle.classList.remove('active');
+      links.classList.remove('active');
+      document.body.style.overflow = '';
+    }));
   }
 
-  // ---------- Scroll Reveal ----------
-  const revealElements = document.querySelectorAll('.reveal');
-  const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        revealObserver.unobserve(entry.target);
+  // ---- Scroll reveal ----
+  const revealEls = document.querySelectorAll('.reveal');
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        revealObs.unobserve(e.target);
       }
     });
-  }, {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-  });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  revealEls.forEach(el => revealObs.observe(el));
 
-  revealElements.forEach(el => revealObserver.observe(el));
-
-  // ---------- FAQ Accordion ----------
-  const faqItems = document.querySelectorAll('.faq-item');
-  faqItems.forEach(item => {
-    const question = item.querySelector('.faq-question');
-    const answer = item.querySelector('.faq-answer');
-
-    question.addEventListener('click', () => {
-      const isActive = item.classList.contains('active');
-
-      // Close all
-      faqItems.forEach(i => {
+  // ---- FAQ accordion ----
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const q = item.querySelector('.faq-question');
+    const a = item.querySelector('.faq-answer');
+    q.addEventListener('click', () => {
+      const open = item.classList.contains('active');
+      document.querySelectorAll('.faq-item').forEach(i => {
         i.classList.remove('active');
         i.querySelector('.faq-answer').style.maxHeight = '0';
       });
-
-      // Open clicked (if it wasn't already open)
-      if (!isActive) {
+      if (!open) {
         item.classList.add('active');
-        answer.style.maxHeight = answer.scrollHeight + 'px';
+        a.style.maxHeight = a.scrollHeight + 'px';
       }
     });
   });
 
-  // ---------- Smooth Scroll for anchor links ----------
+  // ---- Smooth scroll ----
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', (e) => {
+    anchor.addEventListener('click', e => {
       const target = document.querySelector(anchor.getAttribute('href'));
       if (target) {
         e.preventDefault();
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const offset = 80;
+        const y = target.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
       }
     });
   });
 
-  // ---------- Waitlist Form Handling ----------
-  const waitlistForm = document.getElementById('waitlist-form');
-  const waitlistSuccess = document.getElementById('waitlist-success');
-
-  if (waitlistForm) {
-    waitlistForm.addEventListener('submit', async (e) => {
+  // ---- Waitlist form ----
+  const form = document.getElementById('waitlist-form');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-
-      const emailInput = waitlistForm.querySelector('input[type="email"]');
-      const submitBtn = waitlistForm.querySelector('.waitlist-submit');
+      const emailInput = form.querySelector('input[type="email"]');
+      const btn = form.querySelector('.waitlist-submit');
       const email = emailInput.value.trim();
-
       if (!email) return;
 
-      // Disable button and show loading state
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Joining...';
+      btn.disabled = true;
+      btn.textContent = 'Joining...';
 
-      // Check if Web3Forms access key is configured
-      const accessKey = waitlistForm.querySelector('input[name="access_key"]');
-      
-      if (accessKey && accessKey.value && accessKey.value !== 'YOUR_WEB3FORMS_ACCESS_KEY') {
-        // Send via Web3Forms (free, no backend needed)
+      const key = form.querySelector('input[name="access_key"]');
+      if (key && key.value && key.value !== 'YOUR_WEB3FORMS_ACCESS_KEY') {
         try {
-          const formData = new FormData(waitlistForm);
-          const response = await fetch('https://api.web3forms.com/submit', {
+          const res = await fetch('https://api.web3forms.com/submit', {
             method: 'POST',
-            body: formData
+            body: new FormData(form)
           });
-
-          const result = await response.json();
-          if (result.success) {
-            showSuccess();
-          } else {
-            fallbackSubmit(email);
-          }
-        } catch (err) {
-          fallbackSubmit(email);
-        }
-      } else {
-        // Fallback: store locally and show success
-        saveToLocalStorage(email);
-        showSuccess();
+          const data = await res.json();
+          if (data.success) { showSuccess(); return; }
+        } catch (_) {}
       }
+      // Fallback
+      saveLocal(email);
+      showSuccess();
     });
   }
 
   function showSuccess() {
-    const form = document.getElementById('waitlist-form');
-    const success = document.getElementById('waitlist-success');
-    if (form) form.style.display = 'none';
-    document.querySelector('.waitlist-note').style.display = 'none';
-    if (success) success.classList.add('show');
+    const f = document.getElementById('waitlist-form');
+    const s = document.getElementById('waitlist-success');
+    const n = document.querySelector('.waitlist-note');
+    const c = document.querySelector('.waitlist-counter');
+    if (f) f.style.display = 'none';
+    if (n) n.style.display = 'none';
+    if (c) c.style.display = 'none';
+    if (s) s.classList.add('show');
   }
 
-  function saveToLocalStorage(email) {
-    const emails = JSON.parse(localStorage.getItem('cutwave_waitlist') || '[]');
-    if (!emails.includes(email)) {
-      emails.push(email);
-      localStorage.setItem('cutwave_waitlist', JSON.stringify(emails));
+  function saveLocal(email) {
+    const list = JSON.parse(localStorage.getItem('cutwave_waitlist') || '[]');
+    if (!list.includes(email)) {
+      list.push(email);
+      localStorage.setItem('cutwave_waitlist', JSON.stringify(list));
     }
   }
 
-  function fallbackSubmit(email) {
-    saveToLocalStorage(email);
-    showSuccess();
-  }
-
-  // ---------- Counter Animation ----------
-  const counters = document.querySelectorAll('.hero-stat-value');
-  const counterObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const el = entry.target;
-        const target = el.getAttribute('data-count');
-        if (!target) return;
-        
-        animateCounter(el, target);
-        counterObserver.unobserve(el);
+  // ---- Counter animation ----
+  const counters = document.querySelectorAll('[data-count]');
+  const cObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        animateCounter(e.target, e.target.dataset.count);
+        cObs.unobserve(e.target);
       }
     });
   }, { threshold: 0.5 });
-
-  counters.forEach(c => counterObserver.observe(c));
+  counters.forEach(c => cObs.observe(c));
 
   function animateCounter(el, target) {
-    const suffix = target.replace(/[0-9.]/g, '');
+    const suffix = target.replace(/[\d.]/g, '');
     const num = parseFloat(target);
-    const duration = 2000;
-    const startTime = performance.now();
-
-    function update(currentTime) {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      // Ease out expo
-      const eased = 1 - Math.pow(1 - progress, 4);
-      const current = num * eased;
-
-      if (Number.isInteger(num)) {
-        el.textContent = Math.round(current) + suffix;
-      } else {
-        el.textContent = current.toFixed(1) + suffix;
-      }
-
-      if (progress < 1) {
-        requestAnimationFrame(update);
-      }
+    if (isNaN(num)) { el.textContent = target; return; }
+    const duration = 2200;
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 4);
+      const val = num * eased;
+      el.textContent = (Number.isInteger(num) ? Math.round(val) : val.toFixed(1)) + suffix;
+      if (t < 1) requestAnimationFrame(tick);
     }
-    requestAnimationFrame(update);
+    requestAnimationFrame(tick);
   }
 
-  // ---------- Parallax on Hero Orbs ----------
+  // ---- Stat bar animation ----
+  const bars = document.querySelectorAll('.showcase-stat-fill');
+  const barObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.width = e.target.dataset.width;
+        barObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  bars.forEach(b => { b.style.width = '0%'; barObs.observe(b); });
+
+  // ---- Hero orb parallax ----
   const orbs = document.querySelectorAll('.hero-orb');
   if (orbs.length && window.matchMedia('(min-width: 768px)').matches) {
-    window.addEventListener('mousemove', (e) => {
+    window.addEventListener('mousemove', e => {
       const x = (e.clientX / window.innerWidth - 0.5) * 2;
       const y = (e.clientY / window.innerHeight - 0.5) * 2;
-
       orbs.forEach((orb, i) => {
-        const speed = (i + 1) * 10;
-        orb.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+        const s = (i + 1) * 12;
+        orb.style.transform = `translate(${x * s}px, ${y * s}px)`;
       });
     }, { passive: true });
+  }
+
+  // ---- Particle canvas ----
+  const canvas = document.getElementById('particles-canvas');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    let w, h, particles = [];
+    const COUNT = 50;
+
+    function resize() {
+      w = canvas.width = canvas.parentElement.offsetWidth;
+      h = canvas.height = canvas.parentElement.offsetHeight;
+    }
+
+    function init() {
+      resize();
+      particles = [];
+      for (let i = 0; i < COUNT; i++) {
+        particles.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: Math.random() * 1.5 + 0.5,
+          dx: (Math.random() - 0.5) * 0.3,
+          dy: (Math.random() - 0.5) * 0.3,
+          o: Math.random() * 0.4 + 0.1
+        });
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      particles.forEach(p => {
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0) p.x = w;
+        if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h;
+        if (p.y > h) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(167, 139, 250, ${p.o})`;
+        ctx.fill();
+      });
+
+      // Draw lines between close particles
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(139, 92, 246, ${0.06 * (1 - dist / 120)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+
+    init();
+    draw();
+    window.addEventListener('resize', resize);
   }
 });
