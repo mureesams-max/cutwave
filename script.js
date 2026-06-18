@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const iframe = document.getElementById('video-iframe');
   
   // Use an impressive motion graphics showreel from YouTube
-  const videoSrc = "https://www.youtube.com/embed/eM_g3uJ8540?autoplay=1&mute=0";
+  const videoSrc = "https://www.youtube.com/embed/vik46U8Vq7E?autoplay=1&mute=0";
 
   function openModal() {
     modal.setAttribute('aria-hidden', 'false');
