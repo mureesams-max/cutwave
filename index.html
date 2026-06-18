@@ -30,6 +30,7 @@
         <a href="#process">Process</a>
         <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
+        <a href="#contact">Contact</a>
         <a href="#waitlist" class="nav-cta">Join Waitlist</a>
       </div>
       <div class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">
@@ -186,7 +187,7 @@
       <div class="showcase-grid reveal">
         <div class="showcase-visual">
           <img src="images/showcase.png" alt="CutWave studio — video editing in action" loading="lazy">
-          <div class="showcase-play" aria-label="Play showreel"></div>
+          <div class="showcase-play" id="play-showreel" aria-label="Play showreel"></div>
         </div>
 
         <div class="showcase-stats">
@@ -431,6 +432,48 @@
       </div>
     </div>
   </section>
+
+  <!-- ===== Contact ===== -->
+  <section class="section" id="contact" style="background: var(--bg-primary);">
+    <div class="container">
+      <div class="reveal" style="text-align:center;">
+        <div class="section-label">Get In Touch</div>
+        <h2 class="section-title">Let's Talk <span class="gradient-text">Projects</span></h2>
+        <p class="section-subtitle" style="margin:0 auto; margin-bottom: 3.5rem;">Have a specific project in mind? Reach out to us directly.</p>
+      </div>
+
+      <div class="contact-grid reveal">
+        <div class="contact-card">
+          <div class="contact-icon">✉️</div>
+          <h3>Email Us</h3>
+          <p>For general inquiries and project quotes.</p>
+          <a href="mailto:hello@cutwave.studio" class="contact-link">hello@cutwave.studio</a>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">📱</div>
+          <h3>Call Us</h3>
+          <p>Mon-Fri from 9am to 6pm EST.</p>
+          <a href="tel:+15551234567" class="contact-link">+1 (555) 123-4567</a>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">📍</div>
+          <h3>Studio</h3>
+          <p>123 Creative Drive<br>Los Angeles, CA 90028</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Video Modal ===== -->
+  <div class="video-modal" id="video-modal" aria-hidden="true">
+    <div class="video-modal-backdrop" id="video-modal-close-bg"></div>
+    <div class="video-modal-content">
+      <button class="video-modal-close" id="video-modal-close-btn" aria-label="Close video">×</button>
+      <div class="video-container">
+        <iframe id="video-iframe" src="" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== Footer ===== -->
   <footer class="footer">

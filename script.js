@@ -145,6 +145,41 @@ document.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(tick);
   }
 
+  // ---- Video Modal ----
+  const playBtn = document.getElementById('play-showreel');
+  const modal = document.getElementById('video-modal');
+  const closeBtn = document.getElementById('video-modal-close-btn');
+  const modalBg = document.getElementById('video-modal-close-bg');
+  const iframe = document.getElementById('video-iframe');
+  
+  // Use a placeholder cinematic showcase video (e.g. from Vimeo or YouTube)
+  const videoSrc = "https://www.youtube.com/embed/LXb3EKWsInQ?autoplay=1&mute=0";
+
+  function openModal() {
+    modal.setAttribute('aria-hidden', 'false');
+    iframe.src = videoSrc;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    modal.setAttribute('aria-hidden', 'true');
+    iframe.src = '';
+    document.body.style.overflow = '';
+  }
+
+  if (playBtn && modal) {
+    playBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    modalBg.addEventListener('click', closeModal);
+    
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') {
+        closeModal();
+      }
+    });
+  }
+
   // ---- Stat bar animation ----
   const bars = document.querySelectorAll('.showcase-stat-fill');
   const barObs = new IntersectionObserver((entries) => {
